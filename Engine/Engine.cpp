@@ -964,6 +964,48 @@ void ENGINE::Finish(const char* OutputFileName){
         }
         break;
 
+      // Kazzz-S added the following four.
+      case PS_A2:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 594/25.4*72.0;
+          PaperHeight = 420/25.4*72.0;
+        }else{
+          PaperWidth  = 420/25.4*72.0;
+          PaperHeight = 594/25.4*72.0;
+        }
+        break;
+
+      case PS_A1:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 841/25.4*72.0;
+          PaperHeight = 594/25.4*72.0;
+        }else{
+          PaperWidth  = 594/25.4*72.0;
+          PaperHeight = 841/25.4*72.0;
+        }
+        break;
+
+      case PS_A0:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 1189/25.4*72.0;
+          PaperHeight =  841/25.4*72.0;
+        }else{
+          PaperWidth  = 1189/25.4*72.0;
+          PaperHeight =  841/25.4*72.0;
+        }
+        break;
+
+      // the largest 200" x 200" square
+      case PS_X200:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 200.0*72.0;
+          PaperHeight = 200.0*72.0;
+        }else{
+          PaperWidth  = 200.0*72.0;
+          PaperHeight = 200.0*72.0;
+        }
+        break;
+
       default:
         PaperWidth  = Width;
         PaperHeight = Height;

@@ -123,7 +123,7 @@ static bool StringStart(const char* String, const char* Start){
       "Usage: Gerber2pdf [-silentexit] [-nowarnings] [-CMYK] ...\n"
       "       [-output=output_file_name] ...\n"
       "       [-background=R,G,B[,A]] [-backgroundCMYK=C,M,Y,K[,A]] ...\n"
-      "       [-strokes2fills] [-page_size=extents|A3|A4|letter] ...\n"
+      "       [-strokes2fills] [-page_size=extents|A3|A4|letter|A2|A1|A0|X200] ('X200' is the largest 200\"x200\")...\n"
       "       [-orientation=portrait|landscape] [-scale_to_fit] ...\n"
       "       file_1 [-combine] file_2 file_3 file_4...\n"
       "       [-colour=R,G,B[,A]] [-colourCMYK=C,M,Y,K[,A]] [-mirror] ...\n"
@@ -164,11 +164,12 @@ static bool StringStart(const char* String, const char* Start){
       "file, thereby converting outlines to areas.  It resets to default\n"
       "after that file.\n"
       "\n"
-      "The -page_size option takes global effect and can have one of 4 values:\n"
-      "  \"extents\", \"A3\", \"A4\" or \"letter\"\n"
+      "The -page_size option takes global effect and can have one of 8 values:\n"
+      "  \"extents\", \"A3\", \"A4\", \"letter\", \"A2\", \"A1\", \"A0\" or \"X200\"\n"
+      "  Note: Kazzz-S added the last four; \"X200\" is the largest 200\"x200\" square.\n"
       "\n"
       "The -orientation and -scale_to_fit options only take effect\n"
-      "on standard paper sizes (i.e. A3, A4 and letter).\n",
+      "on standard paper sizes (i.e. A3, A4, letter, A2, A1 and A0).\n",
       MAJOR_VERSION, MINOR_VERSION // These are defined in the Makefile
     );
     Pause();
@@ -337,7 +338,11 @@ static bool StringStart(const char* String, const char* Start){
         else if(!strcmp(argv[arg]+11, "A3"     )) Engine.PageSize = ENGINE::PS_A3;
         else if(!strcmp(argv[arg]+11, "A4"     )) Engine.PageSize = ENGINE::PS_A4;
         else if(!strcmp(argv[arg]+11, "letter" )) Engine.PageSize = ENGINE::PS_Letter;
-        else printf("Error: Only \"extents\", \"A3\", \"A4\" and \"letter\"\n"
+        else if(!strcmp(argv[arg]+11, "A2"     )) Engine.PageSize = ENGINE::PS_A2;
+        else if(!strcmp(argv[arg]+11, "A1"     )) Engine.PageSize = ENGINE::PS_A1;
+        else if(!strcmp(argv[arg]+11, "A0"     )) Engine.PageSize = ENGINE::PS_A0;
+        else if(!strcmp(argv[arg]+11, "X200"   )) Engine.PageSize = ENGINE::PS_X200;
+        else printf("Error: Only \"extents\", \"A3\", \"A4\", \"letter\", \"A2\", \"A1\", \"A0\" and \"X200\"\n"
                     "       page sizes are supported\n");
 
       }else if(StringStart(argv[arg]+1, "orientation=")){

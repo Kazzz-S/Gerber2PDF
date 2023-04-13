@@ -42,7 +42,12 @@ struct ENGINE{
       PS_Extents,
       PS_A3,
       PS_A4,
-      PS_Letter
+      PS_Letter,
+      // Kazzz-S added the following four.
+      PS_A2,
+      PS_A1,
+      PS_A0,
+      PS_X200 // the largest 200"x200"
     } PageSize;
 
     enum PAGE_ORIENTATION{

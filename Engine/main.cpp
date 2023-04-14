@@ -95,6 +95,7 @@ static bool StringStart(const char* String, const char* Start){
   int Result;
 
   string OutputFileName;
+  string OutputExtension;
   string FileName;
 
   int arg;
@@ -393,7 +394,10 @@ static bool StringStart(const char* String, const char* Start){
       }
     #endif
   }
-  OutputFileName.append(".pdf");
+  OutputExtension = OutputFileName.substr( OutputFileName.length()-4, OutputFileName.length() );
+  if ( OutputExtension != ".pdf" ) {
+    OutputFileName.append(".pdf");
+  }
 
   Engine.Finish(OutputFileName.c_str());
 

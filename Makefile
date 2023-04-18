@@ -32,6 +32,11 @@ windeploy: install
 		echo ""; \
 		echo "### Deploying Windows DLLs ###"; \
 		files="libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll"; \
+		for file in $$files; do \
+			echo "    ### Copying $$file ==> Engine/bin/"; \
+			cp -p  $$dlldir/$$file Engine/bin/; \
+		done; \
+		echo ""; \
 		if [ -d $$HOME/bin/linux/ ]; then \
 			for file in $$files; do \
 				echo "    ### Copying $$file ==> $$HOME/bin/linux/"; \

@@ -123,8 +123,16 @@ static bool StringStart(const char* String, const char* Start){
       "\n"
       "Usage: Gerber2pdf [-silentexit] [-nowarnings] [-CMYK] ...\n"
       "       [-output=output_file_name] ...\n"
+      "         [-prop_title=title(\"\")] ...\n"
+      "         [-prop_author=author(gerber2pdf)] ...\n"
+      "         [-prop_subject=subject(\"\")] ...\n"
+      "         [-prop_keywords=keywords(\"\")] ...\n"
+      "         [-prop_creator=creator(\"\")] ...\n"
+      "         [-prop_producer=producer(\"\")] ...\n"
+      "         [-prop_creationdate=creationdate(\"\")] ...\n"
       "       [-background=R,G,B[,A]] [-backgroundCMYK=C,M,Y,K[,A]] ...\n"
-      "       [-strokes2fills] [-page_size=extents|A3|A4|letter|A2|A1|A0|X200] ('X200' is the largest 200\"x200\")...\n"
+      "       [-strokes2fills] ...\n"
+      "         [-page_size=extents|A3|A4|letter|A2|A1|A0|X200] ('X200' is the largest 200\"x200\")...\n"
       "       [-orientation=portrait|landscape] [-scale_to_fit] ...\n"
       "       file_1 [-combine] file_2 file_3 file_4...\n"
       "       [-colour=R,G,B[,A]] [-colourCMYK=C,M,Y,K[,A]] [-mirror] ...\n"
@@ -167,7 +175,8 @@ static bool StringStart(const char* String, const char* Start){
       "\n"
       "The -page_size option takes global effect and can have one of 8 values:\n"
       "  \"extents\", \"A3\", \"A4\", \"letter\", \"A2\", \"A1\", \"A0\" or \"X200\"\n"
-      "  Note: Kazzz-S added the last four; \"X200\" is the largest 200\"x200\" square.\n"
+      "  Notes: Kazzz-S added the last four; \"X200\" is the largest 200\"x200\" square.\n"
+      "         He also added the seven -prop_* options.\n"
       "\n"
       "The -orientation and -scale_to_fit options only take effect\n"
       "on standard paper sizes (i.e. A3, A4, letter, A2, A1 and A0).\n",
@@ -354,6 +363,33 @@ static bool StringStart(const char* String, const char* Start){
 
       }else if(!strcmp(argv[arg]+1, "scale_to_fit")){
         Engine.ScaleToFit = true;
+      }
+      // Kazzz-S add the seven options below
+      //   [-prop_title=title(\"\")] ...
+      //   [-prop_author=author(gerber2pdf)] ...
+      //   [-prop_subject=subject(\"\")] ...
+      //   [-prop_keywords=keywords(\"\")] ...
+      //   [-prop_creator=creator(\"\")] ...
+      //   [-prop_producer=producer(\"\")] ...
+      //   [-prop_creationdate=creationdate(\"\")] ...
+      else if(StringStart(argv[arg]+1, "prop_title=")){
+        Engine.Title = argv[arg]+12;
+      }else if(StringStart(argv[arg]+1, "prop_author=")){
+        Engine.Author = argv[arg]+13;
+      }else if(StringStart(argv[arg]+1, "prop_subject=")){
+        Engine.Subject = argv[arg]+14;
+      }else if(StringStart(argv[arg]+1, "prop_keywords=")){
+        Engine.Keywords = argv[arg]+15;
+      }else if(StringStart(argv[arg]+1, "prop_creator=")){ // Creator='Gerber2PDF'
+        if(strcmp(argv[arg]+14, "" ) == 0) {
+          Engine.Creator = Engine.GetVersionInfo();
+        }else{
+          Engine.Creator = argv[arg]+14;
+        }
+      }else if(StringStart(argv[arg]+1, "prop_producer=")){ // Producer='gerber2HiResPDF.py'
+          Engine.Producer = argv[arg]+15;
+      }else if(StringStart(argv[arg]+1, "prop_creationdate=")){
+        Engine.CreationDate = argv[arg]+19;
       }
       continue; // handle the next argument
     }

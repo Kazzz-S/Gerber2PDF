@@ -28,6 +28,7 @@
 //------------------------------------------------------------------------------
 
 #include <map>
+#include <vector>
 #include <string>
 //------------------------------------------------------------------------------
 
@@ -75,6 +76,15 @@ struct ENGINE{
     bool ConvertStrokesToFills;
     bool ScaleToFit;
     bool UseCMYK;
+
+    // Kazzz-S also added the following seven.
+    std::string Title;
+    std::string Author;
+    std::string Subject;
+    std::string Keywords;
+    std::string Creator;
+    std::string Producer;
+    std::string CreationDate;
 //------------------------------------------------------------------------------
 
   private: // Internal structures
@@ -131,7 +141,7 @@ struct ENGINE{
     struct OUTLINE{
       pdfOutlineItems* Item;
       OUTLINE*         Next;
-      
+
       OUTLINE(OUTLINE* Next);
      ~OUTLINE();
     };
@@ -219,6 +229,12 @@ struct ENGINE{
     // Call Run for each Gerber file in the list, then call Finish once
     int  Run   (const char* FileName, const char* Title);
     void Finish(const char* OutputFileName);
+
+    // Kazzz-S added the following functions
+    //   (1) tokenizer for the creation date string "YYYY MM DD hh mm ss"
+    void Tokenize(std::string str, std::string del, std::vector<std::string> &token_v);
+    //   (2) version info
+    std::string GetVersionInfo(void);
 };
 //------------------------------------------------------------------------------
 

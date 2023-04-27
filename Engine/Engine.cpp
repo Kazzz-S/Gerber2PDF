@@ -999,8 +999,8 @@ void ENGINE::Finish(const char* OutputFileName){
           PaperWidth  = 1189/25.4*72.0;
           PaperHeight =  841/25.4*72.0;
         }else{
-          PaperWidth  = 1189/25.4*72.0;
-          PaperHeight =  841/25.4*72.0;
+          PaperWidth  =  841/25.4*72.0;
+          PaperHeight = 1189/25.4*72.0;
         }
         break;
 

@@ -1157,7 +1157,7 @@ void ENGINE::Tokenize(std::string str, std::string del, std::vector<std::string>
 std::string ENGINE::GetVersionInfo(void)
 {
   char s[0x100];
-  sprintf(s, "Gerber2PDF, Version %d.%d (Enhanced to work with the PDF Producer)", \
+  sprintf(s, "Gerber2PDF, Version %d.%d (enhanced to work with the 'gerber2HiResPDF.py' wrapper)", \
               MAJOR_VERSION, MINOR_VERSION); // These are defined in the Makefile
 
   return std::string(s);

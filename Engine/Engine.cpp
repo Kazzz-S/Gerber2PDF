@@ -182,7 +182,7 @@ ENGINE::ENGINE(){
   Opaque->Opacity(1.0);
   pdf.AddIndirect(Opaque);
 
-  // Kazzz-S added the following seven.
+  // Kazzz-S added the following eight.
   Title        = "";
   Author       = "";
   Subject      = "";
@@ -190,6 +190,7 @@ ENGINE::ENGINE(){
   Creator      = "";
   Producer     = "";
   CreationDate = "";
+  ModDate      = "";
 }
 //------------------------------------------------------------------------------
 
@@ -1102,7 +1103,7 @@ void ENGINE::Finish(const char* OutputFileName){
     if (Keywords != ""){
       pdf.Keywords.Set(Keywords.c_str());
     }
-    // (6) Created
+    // (6) Created == Modified
     if (CreationDate != ""){ // should be in the format of "YYYY MM DD hh mm ss"
       std::vector<std::string> timestamp;
       Tokenize( CreationDate, " ", timestamp );
@@ -1118,6 +1119,7 @@ void ENGINE::Finish(const char* OutputFileName){
         int ss   = stoi(timestamp[5]);
 
         pdf.CreationDate.Set(YYYY, MM, DD, hh, mm, ss);
+        pdf.ModDate     .Set(YYYY, MM, DD, hh, mm, ss);
       }
     }
     // (7) Application

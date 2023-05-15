@@ -71,6 +71,7 @@ public:
   pdfString Creator;
   pdfString Producer;
   pdfString CreationDate;
+  pdfString ModDate; // Kazzz-S added
 
   pdfCatalogue Catalogue;
 

@@ -78,7 +78,7 @@ struct ENGINE{
     bool ScaleToFit;
     bool UseCMYK;
 
-    // Kazzz-S also added the following seven.
+    // Kazzz-S also added the following eight.
     std::string Title;
     std::string Author;
     std::string Subject;
@@ -86,6 +86,7 @@ struct ENGINE{
     std::string Creator;
     std::string Producer;
     std::string CreationDate;
+    std::string ModDate;
 //------------------------------------------------------------------------------
 
   private: // Internal structures

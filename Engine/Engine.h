@@ -45,10 +45,15 @@ struct ENGINE{
       PS_A3,
       PS_A4,
       PS_Letter,
-      // Kazzz-S added the following four.
+      // Kazzz-S added the following nine.
       PS_A2,
       PS_A1,
       PS_A0,
+      PS_AZ,
+      PS_AY,
+      PS_AX,
+      PS_AW,
+      PS_X100,
       PS_X200 // the largest 200"x200"
     } PageSize;
 

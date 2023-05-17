@@ -974,7 +974,7 @@ void ENGINE::Finish(const char* OutputFileName){
         }
         break;
 
-      // Kazzz-S added the following four.
+      // Kazzz-S added the following nine.
       case PS_A2:
         if(PageOrientation == PO_Landscape){
           PaperWidth  = 594/25.4*72.0;
@@ -1002,6 +1002,56 @@ void ENGINE::Finish(const char* OutputFileName){
         }else{
           PaperWidth  =  841/25.4*72.0;
           PaperHeight = 1189/25.4*72.0;
+        }
+        break;
+
+      case PS_AZ:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 1682/25.4*72.0;
+          PaperHeight = 1189/25.4*72.0;
+        }else{
+          PaperWidth  = 1189/25.4*72.0;
+          PaperHeight = 1682/25.4*72.0;
+        }
+        break;
+
+      case PS_AY:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 2378/25.4*72.0;
+          PaperHeight = 1682/25.4*72.0;
+        }else{
+          PaperWidth  = 1682/25.4*72.0;
+          PaperHeight = 2378/25.4*72.0;
+        }
+        break;
+
+      case PS_AX:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 3364/25.4*72.0;
+          PaperHeight = 2378/25.4*72.0;
+        }else{
+          PaperWidth  = 2378/25.4*72.0;
+          PaperHeight = 3364/25.4*72.0;
+        }
+        break;
+
+      case PS_AW:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 4756/25.4*72.0;
+          PaperHeight = 3364/25.4*72.0;
+        }else{
+          PaperWidth  = 3364/25.4*72.0;
+          PaperHeight = 4756/25.4*72.0;
+        }
+        break;
+
+      case PS_X100:
+        if(PageOrientation == PO_Landscape){
+          PaperWidth  = 100.0*72.0;
+          PaperHeight = 100.0*72.0;
+        }else{
+          PaperWidth  = 100.0*72.0;
+          PaperHeight = 100.0*72.0;
         }
         break;
 

@@ -132,7 +132,8 @@ static bool StringStart(const char* String, const char* Start){
       "         [-prop_creationdate=creationdate(\"\")] ...\n"
       "       [-background=R,G,B[,A]] [-backgroundCMYK=C,M,Y,K[,A]] ...\n"
       "       [-strokes2fills] ...\n"
-      "         [-page_size=extents|A3|A4|letter|A2|A1|A0|X200] ('X200' is the largest 200\"x200\")...\n"
+      "         [-page_size=extents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
+      "           ('X200' is the largest 200\"x200\" square) ...\n"
       "       [-orientation=portrait|landscape] [-scale_to_fit] ...\n"
       "       file_1 [-combine] file_2 file_3 file_4...\n"
       "       [-colour=R,G,B[,A]] [-colourCMYK=C,M,Y,K[,A]] [-mirror] ...\n"
@@ -173,16 +174,18 @@ static bool StringStart(const char* String, const char* Start){
       "file, thereby converting outlines to areas.  It resets to default\n"
       "after that file.\n"
       "\n"
-      "The -page_size option takes global effect and can have one of 8 values:\n"
-      "  \"extents\", \"A3\", \"A4\", \"letter\", \"A2\", \"A1\", \"A0\" or \"X200\"\n"
-      "  Notes: Kazzz-S added the last four; \"X200\" is the largest 200\"x200\" square.\n"
+      "The -page_size option takes global effect and can have one of 13 values:\n"
+      "  \"extents\", \"A3\", \"A4\", \"letter\", \"A2\", \"A1\", \"A0\", \"AZ\", \"AY\", \"AX\",\n"
+      "  \"AW\", \"X100\", or \"X200\"\n"
+      "  Notes: Kazzz-S added the last nine; \"X200\" is the largest 200\"x200\" square.\n"
       "         He also added the seven -prop_* options.\n"
       "\n"
       "The -orientation and -scale_to_fit options only take effect\n"
-      "on standard paper sizes (i.e. A3, A4, letter, A2, A1 and A0).\n",
+      "on standard/extended paper sizes (i.e. A3, A4, letter, A2, A1, A0,\n"
+      "AZ, AY, AX, AW, X100, and X200).\n",
       MAJOR_VERSION, MINOR_VERSION // These are defined in the Makefile
     );
-    Pause();
+    //Pause();
     return 0;
   }
 
@@ -348,11 +351,17 @@ static bool StringStart(const char* String, const char* Start){
         else if(!strcmp(argv[arg]+11, "A3"     )) Engine.PageSize = ENGINE::PS_A3;
         else if(!strcmp(argv[arg]+11, "A4"     )) Engine.PageSize = ENGINE::PS_A4;
         else if(!strcmp(argv[arg]+11, "letter" )) Engine.PageSize = ENGINE::PS_Letter;
-        else if(!strcmp(argv[arg]+11, "A2"     )) Engine.PageSize = ENGINE::PS_A2;
-        else if(!strcmp(argv[arg]+11, "A1"     )) Engine.PageSize = ENGINE::PS_A1;
-        else if(!strcmp(argv[arg]+11, "A0"     )) Engine.PageSize = ENGINE::PS_A0;
-        else if(!strcmp(argv[arg]+11, "X200"   )) Engine.PageSize = ENGINE::PS_X200;
-        else printf("Error: Only \"extents\", \"A3\", \"A4\", \"letter\", \"A2\", \"A1\", \"A0\" and \"X200\"\n"
+        else if(!strcmp(argv[arg]+11, "A2"     )) Engine.PageSize = ENGINE::PS_A2;   // add (1) standard size
+        else if(!strcmp(argv[arg]+11, "A1"     )) Engine.PageSize = ENGINE::PS_A1;   // add (2) standard size
+        else if(!strcmp(argv[arg]+11, "A0"     )) Engine.PageSize = ENGINE::PS_A0;   // add (3) standard size
+        else if(!strcmp(argv[arg]+11, "AZ"     )) Engine.PageSize = ENGINE::PS_AZ;   // add (4) special  size
+        else if(!strcmp(argv[arg]+11, "AY"     )) Engine.PageSize = ENGINE::PS_AY;   // add (5) special  size
+        else if(!strcmp(argv[arg]+11, "AX"     )) Engine.PageSize = ENGINE::PS_AX;   // add (6) special  size
+        else if(!strcmp(argv[arg]+11, "AW"     )) Engine.PageSize = ENGINE::PS_AW;   // add (7) special  size
+        else if(!strcmp(argv[arg]+11, "X100"   )) Engine.PageSize = ENGINE::PS_X100; // add (8) special  size
+        else if(!strcmp(argv[arg]+11, "X200"   )) Engine.PageSize = ENGINE::PS_X200; // add (9) special  size
+        else printf("Error: Only \"extents\", \"A3\", \"A4\", \"letter\"\n"
+                    "       \"A2\", \"A1\", \"A0\" , \"AZ\" , \"AY\" , \"AX\" , \"AW\" , \"X100\", and \"X200\"\n"
                     "       page sizes are supported\n");
 
       }else if(StringStart(argv[arg]+1, "orientation=")){

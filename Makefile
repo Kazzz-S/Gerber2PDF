@@ -11,6 +11,8 @@ release: all
 
 install: all
 	@echo "### Local Installation ###"
+	@echo "    ### Copying 'LICENSE' ==> 'Engine/bin/LICENSE.Gerber2pdf'"
+	@cp -p LICENSE  Engine/bin/LICENSE.Gerber2pdf
 	@files=`ls Engine/bin/*`; \
 	if [ -d $$HOME/bin/linux/ ]; then \
 		for file in $$files; do \

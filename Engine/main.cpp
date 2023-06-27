@@ -102,7 +102,7 @@ static bool StringStart(const char* String, const char* Start){
 
   if(argc < 2){
     printf(
-      "Gerber2PDF, Version %d.%d\n"
+      "Gerber2PDF, Version %d.%d.%d\n"
       "Built on " __DATE__ " at " __TIME__ "\n"
       "\n"
       "Copyright (C) John-Philip Taylor\n"
@@ -183,7 +183,7 @@ static bool StringStart(const char* String, const char* Start){
       "The -orientation and -scale_to_fit options only take effect\n"
       "on standard/extended paper sizes (i.e. A3, A4, letter, A2, A1, A0,\n"
       "AZ, AY, AX, AW, X100, and X200).\n",
-      MAJOR_VERSION, MINOR_VERSION // These are defined in the Makefile
+      MAJOR_VERSION, MINOR_VERSION, TEENY_VERSION // These are defined in the Makefile
     );
     //Pause();
     return 0;
@@ -399,6 +399,9 @@ static bool StringStart(const char* String, const char* Start){
           Engine.Producer = argv[arg]+15;
       }else if(StringStart(argv[arg]+1, "prop_creationdate=")){
         Engine.CreationDate = argv[arg]+19;
+      }else if(StringStart(argv[arg]+1, "version")){
+        printf( "Gerber2pdf special version for Digidat: %d.%d.%d\n", MAJOR_VERSION, MINOR_VERSION, TEENY_VERSION );
+        exit(0);
       }
       continue; // handle the next argument
     }
@@ -424,7 +427,7 @@ static bool StringStart(const char* String, const char* Start){
       Pause();
       return Result;
     }
-  }
+  } // for-arg
 
   if(!OutputFileName.length()){
     OutputFileName.assign(FileName.c_str());
@@ -439,15 +442,22 @@ static bool StringStart(const char* String, const char* Start){
       }
     #endif
   }
-  OutputExtension = OutputFileName.substr( OutputFileName.length()-4, OutputFileName.length() );
-  if ( OutputExtension != ".pdf" ) {
-    OutputFileName.append(".pdf");
+
+  if(OutputFileName != ""){
+    OutputExtension = OutputFileName.substr( OutputFileName.length()-4, OutputFileName.length() );
+    if(OutputExtension != ".pdf"){
+      OutputFileName.append(".pdf");
+    }
+
+    Engine.Finish(OutputFileName.c_str());
+
+    Pause();
+    return 0;
+  }else{
+    fprintf(stderr, "! OutputFileName not set!\n");
+    Pause();
+    return 0;
   }
-
-  Engine.Finish(OutputFileName.c_str());
-
-  Pause();
-  return 0;
 }
 //------------------------------------------------------------------------------
 

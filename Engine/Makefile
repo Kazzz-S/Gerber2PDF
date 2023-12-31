@@ -3,17 +3,22 @@ Options += -std=c++11 -Wall -fexceptions -O2
 ifeq ($(OS), Windows_NT)
   CXX       = x86_64-w64-mingw32-g++
   obj       = obj_win
+  LibZip    = ZLib/libz.a
+  LibEngine = $(obj)/libEngine.a
   Output    = bin/Gerber2pdf.exe
   Options  += -municode
   Resources = $(obj)/Resources/resource.res
 else
   CXX       = g++
   obj       = obj_lin
+  LibZip    = ZLib/libz.a
+  LibEngine = $(obj)/libEngine.a
   Output    = bin/Gerber2pdf
+  Options  +=
   Resources =
 endif
-#-------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------
 Includes   = -ITools/Deflate
 Includes  += -ITools/Gerber
 Includes  += -ITools/Gerber/Gerber
@@ -25,9 +30,9 @@ Includes  += -IZLib
 
 Libraries  =
 LibInclude =
-#-------------------------------------------------------------------------------
 
-Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=9 -DTEENY_VERSION=1
+#-------------------------------------------------------------------------------
+Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=9 -DTEENY_VERSION=2
 
 Objects  = $(shell find Tools       -iname "*.cpp")
 Objects += $(shell find Toolbox/Cpp -iname "*.cpp")
@@ -35,9 +40,8 @@ Objects += Engine.cpp
 Objects := $(Objects:%.cpp=$(obj)/%.o)
 
 Headers  = $(shell find . -iname "*.h")
+
 #-------------------------------------------------------------------------------
-# Kazzz-S disabled the 'FORCE' settings
-#.PHONY: clean all FORCE
 .PHONY: clean all
 .SECONDARY:
 
@@ -47,46 +51,44 @@ clean:
 	rm -rf $(Output) $(obj)
 	cd ZLib; git clean -xdf
 
-#FORCE:
 #-------------------------------------------------------------------------------
-
 # Binaries
-
-$(Output): main.cpp main.h $(obj)/libEngine.a ZLib/zlib.h ZLib/libz.a $(Resources)
+$(Output): $(LibZip) $(LibEngine) $(Resources) main.cpp main.h
 	mkdir -p bin
-	$(CXX) $(Options) $(Version) $(Includes) $< -s $(Resources) -L$(obj) -lEngine -LZLib -lz -o $@
+ifeq ($(OS), Windows_NT)
+	$(CXX) main.cpp $(Options) $(Version) $(Includes) -s $(Resources) \
+	-L$(obj) -lEngine -LZLib -lz -o $@
+else
+	$(CXX) main.cpp $(Options) $(Version) $(Includes) \
+	-L$(obj) -lEngine -LZLib -lz -o $@
+endif
+
 #-------------------------------------------------------------------------------
-
 # Libraries
-
-$(obj)/libEngine.a: $(Objects)
+$(LibEngine): $(Objects)
 	mkdir -p $(@D)
 	ar -rcs $@ $(Objects)
 
+$(LibZip):
 ifeq ($(OS), Windows_NT)
-#ZLib/libz.a: FORCE
-ZLib/libz.a:
 	$(MAKE) -C ZLib -f win32/Makefile.gcc
 else
-#ZLib/libz.a: FORCE
-ZLib/libz.a:
-	cd ZLib          ; \
-		./configure && \
-		make
+	cd ZLib	; \
+	configure && \
+	make
 endif
+
 #-------------------------------------------------------------------------------
-
 # Objects
-
 $(obj)/%.o: %.cpp $(Headers)
 	mkdir -p $(@D)
 	$(CXX) $(Options) $(Version) $(Defines) -c $(Includes) $< -o $@
+
 #-------------------------------------------------------------------------------
-
 # Resources
-
 $(obj)/%.res: %.rc
 	mkdir -p $(@D)
 	windres.exe -J rc -O coff -i $< -o $@
-#-------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------
+# EOF

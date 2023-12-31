@@ -21,12 +21,13 @@ Includes  += -ITools/PDF
 Includes  += -ITools/PDF/afm
 Includes  += -ITools/PDF/pdf
 Includes  += -IToolbox/Cpp
+Includes  += -IZLib
 
 Libraries  =
 LibInclude =
 #-------------------------------------------------------------------------------
 
-Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=8 -DTEENY_VERSION=1
+Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=9 -DTEENY_VERSION=1
 
 Objects  = $(shell find Tools       -iname "*.cpp")
 Objects += $(shell find Toolbox/Cpp -iname "*.cpp")
@@ -35,7 +36,8 @@ Objects := $(Objects:%.cpp=$(obj)/%.o)
 
 Headers  = $(shell find . -iname "*.h")
 #-------------------------------------------------------------------------------
-
+# Kazzz-S disabled the 'FORCE' settings
+#.PHONY: clean all FORCE
 .PHONY: clean all
 .SECONDARY:
 
@@ -43,13 +45,16 @@ all: $(Output)
 
 clean:
 	rm -rf $(Output) $(obj)
+	cd ZLib; git clean -xdf
+
+#FORCE:
 #-------------------------------------------------------------------------------
 
 # Binaries
 
-$(Output): main.cpp main.h $(obj)/libEngine.a $(Resources)
+$(Output): main.cpp main.h $(obj)/libEngine.a ZLib/zlib.h ZLib/libz.a $(Resources)
 	mkdir -p bin
-	$(CXX) $(Options) $(Version) $(Includes) $< -s $(Resources) -L$(obj) -lEngine -o $@
+	$(CXX) $(Options) $(Version) $(Includes) $< -s $(Resources) -L$(obj) -lEngine -LZLib -lz -o $@
 #-------------------------------------------------------------------------------
 
 # Libraries
@@ -57,6 +62,18 @@ $(Output): main.cpp main.h $(obj)/libEngine.a $(Resources)
 $(obj)/libEngine.a: $(Objects)
 	mkdir -p $(@D)
 	ar -rcs $@ $(Objects)
+
+ifeq ($(OS), Windows_NT)
+#ZLib/libz.a: FORCE
+ZLib/libz.a:
+	$(MAKE) -C ZLib -f win32/Makefile.gcc
+else
+#ZLib/libz.a: FORCE
+ZLib/libz.a:
+	cd ZLib          ; \
+		./configure && \
+		make
+endif
 #-------------------------------------------------------------------------------
 
 # Objects

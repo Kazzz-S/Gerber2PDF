@@ -32,7 +32,7 @@ Libraries  =
 LibInclude =
 
 #-------------------------------------------------------------------------------
-Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=9 -DTEENY_VERSION=2
+Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=9 -DTEENY_VERSION=3
 
 Objects  = $(shell find Tools       -iname "*.cpp")
 Objects += $(shell find Toolbox/Cpp -iname "*.cpp")
@@ -74,7 +74,7 @@ ifeq ($(OS), Windows_NT)
 	$(MAKE) -C ZLib -f win32/Makefile.gcc
 else
 	cd ZLib	; \
-	configure && \
+	./configure && \
 	make
 endif
 

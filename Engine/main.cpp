@@ -135,6 +135,9 @@ static bool StringStart(const char* String, const char* Start){
       "         [-page_size=extents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
       "           ('X200' is the largest 200\"x200\" square) ...\n"
       "       [-orientation=portrait|landscape] [-scale_to_fit] ...\n"
+      "         [-next_page_size=eextents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
+      "           ('X200' is the largest 200\"x200\" square) ...\n"
+      "       [-next_orientation=portrait|landscape] [-next_scale_to_fit] ...\n"
       "       file_1 [-combine] file_2 file_3 file_4...\n"
       "       [-colour=R,G,B[,A]] [-colourCMYK=C,M,Y,K[,A]] [-mirror] ...\n"
       "       [-nomirror] [-nocombine] ... file_N\n"
@@ -182,7 +185,11 @@ static bool StringStart(const char* String, const char* Start){
       "\n"
       "The -orientation and -scale_to_fit options only take effect\n"
       "on standard/extended paper sizes (i.e. A3, A4, letter, A2, A1, A0,\n"
-      "AZ, AY, AX, AW, X100, and X200).\n",
+      "AZ, AY, AX, AW, X100, and X200).\n"
+      "\n"
+      "The -next_page_size, -next_orientation and -next_scale_to_fit options\n"
+      "only take effect for the next page created.  Define before calling the\n"
+      "first Gerber of that page.  These override the \"global\" options.\n",
       MAJOR_VERSION, MINOR_VERSION, TEENY_VERSION // These are defined in the Makefile
     );
     //Pause();
@@ -365,13 +372,40 @@ static bool StringStart(const char* String, const char* Start){
                     "       page sizes are supported\n");
 
       }else if(StringStart(argv[arg]+1, "orientation=")){
-        if     (!strcmp(argv[arg]+13, "portrait" )) Engine.PageOrientation = ENGINE::PO_Portrait;
-        else if(!strcmp(argv[arg]+13, "landscape")) Engine.PageOrientation = ENGINE::PO_Landscape;
+        if     (!strcmp(argv[arg]+13, "portrait" )) Engine.Orientation = ENGINE::PO_Portrait;
+        else if(!strcmp(argv[arg]+13, "landscape")) Engine.Orientation = ENGINE::PO_Landscape;
         else printf("Error: Only \"portrait\" and \"landscape\"\n"
                     "       orientations are supported\n");
 
       }else if(!strcmp(argv[arg]+1, "scale_to_fit")){
         Engine.ScaleToFit = true;
+
+      }else if(StringStart(argv[arg]+1, "next_page_size=")){
+        if     (!strcmp(argv[arg]+16, "extents")) Engine.NextPageSize = ENGINE::PS_Extents;
+        else if(!strcmp(argv[arg]+16, "A3"     )) Engine.NextPageSize = ENGINE::PS_A3;
+        else if(!strcmp(argv[arg]+16, "A4"     )) Engine.NextPageSize = ENGINE::PS_A4;
+        else if(!strcmp(argv[arg]+16, "letter" )) Engine.NextPageSize = ENGINE::PS_Letter;
+        else if(!strcmp(argv[arg]+16, "A2"     )) Engine.NextPageSize = ENGINE::PS_A2;   // add (1) standard size
+        else if(!strcmp(argv[arg]+16, "A1"     )) Engine.NextPageSize = ENGINE::PS_A1;   // add (2) standard size
+        else if(!strcmp(argv[arg]+16, "A0"     )) Engine.NextPageSize = ENGINE::PS_A0;   // add (3) standard size
+        else if(!strcmp(argv[arg]+16, "AZ"     )) Engine.NextPageSize = ENGINE::PS_AZ;   // add (4) special  size
+        else if(!strcmp(argv[arg]+16, "AY"     )) Engine.NextPageSize = ENGINE::PS_AY;   // add (5) special  size
+        else if(!strcmp(argv[arg]+16, "AX"     )) Engine.NextPageSize = ENGINE::PS_AX;   // add (6) special  size
+        else if(!strcmp(argv[arg]+16, "AW"     )) Engine.NextPageSize = ENGINE::PS_AW;   // add (7) special  size
+        else if(!strcmp(argv[arg]+16, "X100"   )) Engine.NextPageSize = ENGINE::PS_X100; // add (8) special  size
+        else if(!strcmp(argv[arg]+16, "X200"   )) Engine.NextPageSize = ENGINE::PS_X200; // add (9) special  size
+        else printf("Error: Only \"extents\", \"A3\", \"A4\", \"letter\"\n"
+                    "       \"A2\", \"A1\", \"A0\" , \"AZ\" , \"AY\" , \"AX\" , \"AW\" , \"X100\", and \"X200\"\n"
+                    "       page sizes are supported\n");
+
+      }else if(StringStart(argv[arg]+1, "next_orientation=")){
+        if     (!strcmp(argv[arg]+18, "portrait" )) Engine.NextOrientation = ENGINE::PO_Portrait;
+        else if(!strcmp(argv[arg]+18, "landscape")) Engine.NextOrientation = ENGINE::PO_Landscape;
+        else printf("Error: Only \"portrait\" and \"landscape\"\n"
+                    "       orientations are supported\n");
+
+      }else if(!strcmp(argv[arg]+1, "next_scale_to_fit")){
+        Engine.NextScaleToFit = true;
       }
       // Kazzz-S add the seven options below
       //   [-prop_title=title(\"\")] ...

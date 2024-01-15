@@ -129,10 +129,14 @@ ENGINE::OUTLINE::~OUTLINE(){
 ENGINE::ENGINE(){
   ConvertStrokesToFills = false;
   ScaleToFit            = false;
+  NextScaleToFit        = false;
   UseCMYK               = false;
 
-  PageSize        = PS_Tight;
-  PageOrientation = PO_Auto;
+  PageSize    = PS_Tight;
+  Orientation = PO_Auto;
+
+  NextPageSize    = PS_Tight;
+  NextOrientation = PO_Auto;
 
   OpaqueCount = 0;
   OpaqueStack = 0;
@@ -468,9 +472,9 @@ int ENGINE::RenderLayer(
         }else if(SolidRectangle){
           DrawRectLine(
             Contents,
-            RectX           , RectY,
+            RectX    , RectY,
             Render->X, Render->Y,
-            RectW           , RectH
+            RectW    , RectH
           );
           RectX = Render->X;
           RectY = Render->Y;
@@ -487,7 +491,7 @@ int ENGINE::RenderLayer(
 
       case gcArc:
         if(OutlinePath || SolidCircle){
-          Contents->Arc(Render->X, Render->Y, Render->A);
+          Contents->ArcTo(Render->X, Render->Y, Render->A, Render->End.X, Render->End.Y);
         }else{
           printf(
             "Error: Only solid circular apertures can be used for arcs\n"
@@ -649,6 +653,240 @@ ENGINE::LAYER* ENGINE::FindLayer(
 }
 //------------------------------------------------------------------------------
 
+void ENGINE::SetMediaBox(
+  PAGE*  Page,
+  double Left,  double Bottom, double Right, double Top
+){
+  if(!Page->Contents) return;
+
+  double Width  = Right - Left;
+  double Height = Top - Bottom;
+
+  double PaperWidth;
+  double PaperHeight;
+  double Delta;
+
+  PAGE_SIZE        PageSize    = this->PageSize;
+  PAGE_ORIENTATION Orientation = this->Orientation;
+  bool             ScaleToFit  = this->ScaleToFit;
+
+  bool LocalOverride = false;
+  if(Page->PageSize != PS_Tight){
+    PageSize      = Page->PageSize;
+    LocalOverride = true;
+  }
+  if(Page->Orientation != PO_Auto){
+    Orientation   = Page->Orientation;
+    LocalOverride = true;
+  }
+  if(Page->ScaleToFit){
+    ScaleToFit    = true;
+    LocalOverride = true;
+  }
+
+  if(PageSize == PS_Tight) return;
+
+  if(LocalOverride && PageSize != PS_Extents){
+    Left   = Page->Page->MediaBox.Left  .Value;
+    Bottom = Page->Page->MediaBox.Bottom.Value;
+    Right  = Page->Page->MediaBox.Right .Value;
+    Top    = Page->Page->MediaBox.Top   .Value;
+    Width  = Right - Left;
+    Height = Top - Bottom;
+  }
+
+  if(Orientation == PO_Auto){
+    if(Width > Height) Orientation = PO_Landscape;
+    else               Orientation = PO_Portrait;
+  }
+
+  // Centre on standard sizes
+  switch(PageSize){
+    case PS_A3:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 420/25.4*72.0;
+        PaperHeight = 297/25.4*72.0;
+      }else{
+        PaperWidth  = 297/25.4*72.0;
+        PaperHeight = 420/25.4*72.0;
+      }
+      break;
+
+    case PS_A4:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 297/25.4*72.0;
+        PaperHeight = 210/25.4*72.0;
+      }else{
+        PaperWidth  = 210/25.4*72.0;
+        PaperHeight = 297/25.4*72.0;
+      }
+      break;
+
+    case PS_Letter:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 11.0*72.0;
+        PaperHeight =  8.5*72.0;
+      }else{
+        PaperWidth  =  8.5*72.0;
+        PaperHeight = 11.0*72.0;
+      }
+      break;
+
+    // Kazzz-S added the following nine.
+    //         changed AW ~ AZ square
+    case PS_A2:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 594/25.4*72.0;
+        PaperHeight = 420/25.4*72.0;
+      }else{
+        PaperWidth  = 420/25.4*72.0;
+        PaperHeight = 594/25.4*72.0;
+      }
+      break;
+
+    case PS_A1:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 841/25.4*72.0;
+        PaperHeight = 594/25.4*72.0;
+      }else{
+        PaperWidth  = 594/25.4*72.0;
+        PaperHeight = 841/25.4*72.0;
+      }
+      break;
+
+    case PS_A0:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 1189/25.4*72.0;
+        PaperHeight =  841/25.4*72.0;
+      }else{
+        PaperWidth  =  841/25.4*72.0;
+        PaperHeight = 1189/25.4*72.0;
+      }
+      break;
+
+    case PS_AZ:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 1682/25.4*72.0;
+      //   PaperHeight = 1189/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 1189/25.4*72.0;
+      //   PaperHeight = 1682/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 1189/25.4*72.0;
+        PaperHeight = 1189/25.4*72.0;
+      }else{
+        PaperWidth  = 1189/25.4*72.0;
+        PaperHeight = 1189/25.4*72.0;
+      }
+      break;
+
+    case PS_AY:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 2378/25.4*72.0;
+      //   PaperHeight = 1682/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 1682/25.4*72.0;
+      //   PaperHeight = 2378/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 1682/25.4*72.0;
+        PaperHeight = 1682/25.4*72.0;
+      }else{
+        PaperWidth  = 1682/25.4*72.0;
+        PaperHeight = 1682/25.4*72.0;
+      }
+      break;
+
+    case PS_AX:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 3364/25.4*72.0;
+      //   PaperHeight = 2378/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 2378/25.4*72.0;
+      //   PaperHeight = 3364/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 2378/25.4*72.0;
+        PaperHeight = 2378/25.4*72.0;
+      }else{
+        PaperWidth  = 2378/25.4*72.0;
+        PaperHeight = 2378/25.4*72.0;
+      }
+      break;
+
+    case PS_AW:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 4756/25.4*72.0;
+      //   PaperHeight = 3364/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 3364/25.4*72.0;
+      //   PaperHeight = 4756/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 3364/25.4*72.0;
+        PaperHeight = 3364/25.4*72.0;
+      }else{
+        PaperWidth  = 3364/25.4*72.0;
+        PaperHeight = 3364/25.4*72.0;
+      }
+      break;
+
+    case PS_X100:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 100.0*72.0;
+        PaperHeight = 100.0*72.0;
+      }else{
+        PaperWidth  = 100.0*72.0;
+        PaperHeight = 100.0*72.0;
+      }
+      break;
+
+    // the largest 200" x 200" square
+    case PS_X200:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 200.0*72.0;
+        PaperHeight = 200.0*72.0;
+      }else{
+        PaperWidth  = 200.0*72.0;
+        PaperHeight = 200.0*72.0;
+      }
+      break;
+
+    default:
+      PaperWidth  = Width;
+      PaperHeight = Height;
+      ScaleToFit  = false;
+  }
+
+  if(ScaleToFit){
+    double ScaleX = (PaperWidth  - 10.0/25.4*72.0) / Width  * 1.05;
+    double ScaleY = (PaperHeight - 10.0/25.4*72.0) / Height * 1.05;
+    double Scale  = ScaleX;
+    if(ScaleX > ScaleY) Scale = ScaleY;
+    Left   *= Scale;
+    Bottom *= Scale;
+    Right  *= Scale;
+    Top    *= Scale;
+    Width  *= Scale;
+    Height *= Scale;
+
+    Page->Contents->Prescale(Scale, Scale);
+  }
+
+  Delta   = (PaperWidth - Width) / 2.0;
+  Left   -= Delta;
+  Right  += Delta;
+
+  Delta   = (PaperHeight - Height) / 2.0;
+  Bottom -= Delta;
+  Top    += Delta;
+
+  Page->Contents->Pretranslate(-Left, -Bottom);
+  Page->Page->MediaBox.Set(0, 0, Right-Left, Top-Bottom);
+}
+//------------------------------------------------------------------------------
+
 int ENGINE::Run(const char* FileName, const char* Title){
   int    j;
   bool   Reusing = false;
@@ -706,9 +944,15 @@ int ENGINE::Run(const char* FileName, const char* Title){
 
   // Write the PDF
   if(!ThePage || NewPage || !Combine){
-    Page        = new PAGE(Page, UseCMYK);
-    ThePage     = Page->Page;
-    ThePageUsed = false;
+    Page              = new PAGE(Page, UseCMYK);
+    ThePage           = Page->Page;
+    ThePageUsed       = false;
+    Page->PageSize    = NextPageSize;
+    Page->Orientation = NextOrientation;
+    Page->ScaleToFit  = NextScaleToFit;
+    NextPageSize      = PS_Tight;
+    NextOrientation   = PO_Auto;
+    NextScaleToFit    = false;
   }
   NewPage = false;
 
@@ -907,248 +1151,37 @@ int ENGINE::Run(const char* FileName, const char* Title){
 void ENGINE::Finish(const char* OutputFileName){
   PAGE* page;
 
-  if(PageSize != PS_Tight){
-    double Left   =  1e100;
-    double Bottom =  1e100;
-    double Right  = -1e100;
-    double Top    = -1e100;
-    double Width;
-    double Height;
-    double PaperWidth;
-    double PaperHeight;
-    double Delta;
+  double Left   =  1e100;
+  double Bottom =  1e100;
+  double Right  = -1e100;
+  double Top    = -1e100;
 
-    // Calculate the extents
-    page = Page;
-    while(page){
-      if(page->Page->MediaBox.Left  .Value < page->Page->MediaBox.Right.Value &&
-         page->Page->MediaBox.Bottom.Value < page->Page->MediaBox.Top  .Value ){
-        if(Left   > page->Page->MediaBox.Left  .Value)
-           Left   = page->Page->MediaBox.Left  .Value;
-        if(Bottom > page->Page->MediaBox.Bottom.Value)
-           Bottom = page->Page->MediaBox.Bottom.Value;
-        if(Right  < page->Page->MediaBox.Right .Value)
-           Right  = page->Page->MediaBox.Right .Value;
-        if(Top    < page->Page->MediaBox.Top   .Value)
-           Top    = page->Page->MediaBox.Top   .Value;
-      }
-      page = page->Next;
+  // Calculate the extents
+  page = Page;
+  while(page){
+    if(page->Page->MediaBox.Left  .Value < page->Page->MediaBox.Right.Value &&
+       page->Page->MediaBox.Bottom.Value < page->Page->MediaBox.Top  .Value ){
+      if(Left   > page->Page->MediaBox.Left  .Value)
+         Left   = page->Page->MediaBox.Left  .Value;
+      if(Bottom > page->Page->MediaBox.Bottom.Value)
+         Bottom = page->Page->MediaBox.Bottom.Value;
+      if(Right  < page->Page->MediaBox.Right .Value)
+         Right  = page->Page->MediaBox.Right .Value;
+      if(Top    < page->Page->MediaBox.Top   .Value)
+         Top    = page->Page->MediaBox.Top   .Value;
     }
-    Width  = Right - Left;
-    Height = Top - Bottom;
-
-    if(PageOrientation == PO_Auto){
-      if(Width > Height) PageOrientation = PO_Landscape;
-      else               PageOrientation = PO_Portrait;
-    }
-
-    // Centre on standard sizes
-    switch(PageSize){
-      case PS_A3:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 420/25.4*72.0;
-          PaperHeight = 297/25.4*72.0;
-        }else{
-          PaperWidth  = 297/25.4*72.0;
-          PaperHeight = 420/25.4*72.0;
-        }
-        break;
-
-      case PS_A4:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 297/25.4*72.0;
-          PaperHeight = 210/25.4*72.0;
-        }else{
-          PaperWidth  = 210/25.4*72.0;
-          PaperHeight = 297/25.4*72.0;
-        }
-        break;
-
-      case PS_Letter:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 11.0*72.0;
-          PaperHeight =  8.5*72.0;
-        }else{
-          PaperWidth  =  8.5*72.0;
-          PaperHeight = 11.0*72.0;
-        }
-        break;
-
-      // Kazzz-S added the following nine.
-      //         changed AW ~ AZ square
-      case PS_A2:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 594/25.4*72.0;
-          PaperHeight = 420/25.4*72.0;
-        }else{
-          PaperWidth  = 420/25.4*72.0;
-          PaperHeight = 594/25.4*72.0;
-        }
-        break;
-
-      case PS_A1:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 841/25.4*72.0;
-          PaperHeight = 594/25.4*72.0;
-        }else{
-          PaperWidth  = 594/25.4*72.0;
-          PaperHeight = 841/25.4*72.0;
-        }
-        break;
-
-      case PS_A0:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 1189/25.4*72.0;
-          PaperHeight =  841/25.4*72.0;
-        }else{
-          PaperWidth  =  841/25.4*72.0;
-          PaperHeight = 1189/25.4*72.0;
-        }
-        break;
-
-      case PS_AZ:
-        // if(PageOrientation == PO_Landscape){
-        //   PaperWidth  = 1682/25.4*72.0;
-        //   PaperHeight = 1189/25.4*72.0;
-        // }else{
-        //   PaperWidth  = 1189/25.4*72.0;
-        //   PaperHeight = 1682/25.4*72.0;
-        // }
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 1189/25.4*72.0;
-          PaperHeight = 1189/25.4*72.0;
-        }else{
-          PaperWidth  = 1189/25.4*72.0;
-          PaperHeight = 1189/25.4*72.0;
-        }
-        break;
-
-      case PS_AY:
-        // if(PageOrientation == PO_Landscape){
-        //   PaperWidth  = 2378/25.4*72.0;
-        //   PaperHeight = 1682/25.4*72.0;
-        // }else{
-        //   PaperWidth  = 1682/25.4*72.0;
-        //   PaperHeight = 2378/25.4*72.0;
-        // }
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 1682/25.4*72.0;
-          PaperHeight = 1682/25.4*72.0;
-        }else{
-          PaperWidth  = 1682/25.4*72.0;
-          PaperHeight = 1682/25.4*72.0;
-        }
-        break;
-
-      case PS_AX:
-        // if(PageOrientation == PO_Landscape){
-        //   PaperWidth  = 3364/25.4*72.0;
-        //   PaperHeight = 2378/25.4*72.0;
-        // }else{
-        //   PaperWidth  = 2378/25.4*72.0;
-        //   PaperHeight = 3364/25.4*72.0;
-        // }
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 2378/25.4*72.0;
-          PaperHeight = 2378/25.4*72.0;
-        }else{
-          PaperWidth  = 2378/25.4*72.0;
-          PaperHeight = 2378/25.4*72.0;
-        }
-        break;
-
-      case PS_AW:
-        // if(PageOrientation == PO_Landscape){
-        //   PaperWidth  = 4756/25.4*72.0;
-        //   PaperHeight = 3364/25.4*72.0;
-        // }else{
-        //   PaperWidth  = 3364/25.4*72.0;
-        //   PaperHeight = 4756/25.4*72.0;
-        // }
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 3364/25.4*72.0;
-          PaperHeight = 3364/25.4*72.0;
-        }else{
-          PaperWidth  = 3364/25.4*72.0;
-          PaperHeight = 3364/25.4*72.0;
-        }
-        break;
-
-      case PS_X100:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 100.0*72.0;
-          PaperHeight = 100.0*72.0;
-        }else{
-          PaperWidth  = 100.0*72.0;
-          PaperHeight = 100.0*72.0;
-        }
-        break;
-
-      // the largest 200" x 200" square
-      case PS_X200:
-        if(PageOrientation == PO_Landscape){
-          PaperWidth  = 200.0*72.0;
-          PaperHeight = 200.0*72.0;
-        }else{
-          PaperWidth  = 200.0*72.0;
-          PaperHeight = 200.0*72.0;
-        }
-        break;
-
-      default:
-        PaperWidth  = Width;
-        PaperHeight = Height;
-        ScaleToFit  = false;
-    }
-
-    if(ScaleToFit){
-      double ScaleX = (PaperWidth  - 10.0/25.4*72.0) / Width  * 1.05;
-      double ScaleY = (PaperHeight - 10.0/25.4*72.0) / Height * 1.05;
-      double Scale  = ScaleX;
-      if(ScaleX > ScaleY) Scale = ScaleY;
-      Left   *= Scale;
-      Bottom *= Scale;
-      Right  *= Scale;
-      Top    *= Scale;
-      Width  *= Scale;
-      Height *= Scale;
-
-      page = Page;
-      while(page){
-        if(page->Contents) page->Contents->Prescale(Scale, Scale);
-        page = page->Next;
-      }
-    }
-
-    Delta   = (PaperWidth - Width) / 2.0;
-    Left   -= Delta;
-    Right  += Delta;
-
-    Delta   = (PaperHeight - Height) / 2.0;
-    Bottom -= Delta;
-    Top    += Delta;
-
-    page = Page;
-    while(page){
-      page->Page->MediaBox.Set(Left, Bottom, Right, Top);
-      page = page->Next;
-    }
+    page = page->Next;
   }
 
   page = Page;
   while(page){
-    if(page->Contents){
-      page->Contents->Pretranslate(
-        -page->Page->MediaBox.Left  .Value,
-        -page->Page->MediaBox.Bottom.Value
-      );
-      page->Page->MediaBox.Set(
-        0, 0,
-        page->Page->MediaBox.Right.Value - page->Page->MediaBox.Left  .Value,
-        page->Page->MediaBox.Top  .Value - page->Page->MediaBox.Bottom.Value
-      );
-      page->Contents->Deflate();
-    }
+    SetMediaBox(page, Left, Bottom, Right, Top);
+    page = page->Next;
+  }
+
+  page = Page;
+  while(page){
+    if(page->Contents) page->Contents->Deflate();
     page = page->Next;
   }
 

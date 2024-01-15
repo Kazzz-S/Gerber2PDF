@@ -135,7 +135,8 @@ static bool StringStart(const char* String, const char* Start){
       "         [-page_size=extents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
       "           ('X200' is the largest 200\"x200\" square) ...\n"
       "       [-orientation=portrait|landscape] [-scale_to_fit] ...\n"
-      "       [-next_page_size=extents|A3|A4|letter] ...\n"
+      "         [-next_page_size=eextents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
+      "           ('X200' is the largest 200\"x200\" square) ...\n"
       "       [-next_orientation=portrait|landscape] [-next_scale_to_fit] ...\n"
       "       file_1 [-combine] file_2 file_3 file_4...\n"
       "       [-colour=R,G,B[,A]] [-colourCMYK=C,M,Y,K[,A]] [-mirror] ...\n"
@@ -184,7 +185,7 @@ static bool StringStart(const char* String, const char* Start){
       "\n"
       "The -orientation and -scale_to_fit options only take effect\n"
       "on standard/extended paper sizes (i.e. A3, A4, letter, A2, A1, A0,\n"
-      "AZ, AY, AX, AW, X100, and X200).\n",
+      "AZ, AY, AX, AW, X100, and X200).\n"
       "\n"
       "The -next_page_size, -next_orientation and -next_scale_to_fit options\n"
       "only take effect for the next page created.  Define before calling the\n"

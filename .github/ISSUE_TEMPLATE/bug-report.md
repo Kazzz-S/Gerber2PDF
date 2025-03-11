@@ -1,19 +1,15 @@
 ---
-name: Bug Report
-about: Create a report to help us improve
-title: ''
-labels: bug
-assignees: ''
-
+name: 🐞 Bug Report
+about: Report a bug, but note that there is no guarantee of a fix.
+title: "[BUG] "
+labels: "bug"
+assignees: ""
 ---
 
-Please consult the [SourceForge Discussion](https://sourceforge.net/p/gerber2pdf/discussion) page before reporting a bug here.
+🚨 **IMPORTANT NOTICE** 🚨
+This project is for **personal research purposes**, and **no support is provided**.
 
-## Content Suggestions:
+Bug reports are welcome, but **there is no guarantee that they will be fixed**.
+If you need a fix urgently, you are encouraged to **fork the repository and address the issue yourself**.
 
-- Describe the bug in general terms
-- Give as much background information as possible, including:
-    - OS: eg. "Windows 10.0.19041.630"
-    - Full version info: eg. "Version 1.6 Built on Nov 21 2020 at 20:53:02"
-- Give steps to reproduce
-- Provide any additional context that might be applicable
+For more details, see the [Support Policy](https://github.com/Kazzz-S/Gerber2PDF/blob/large_page/.github/SUPPORT.md).

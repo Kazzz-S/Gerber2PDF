@@ -1,17 +1,15 @@
 ---
-name: Feature Request
-about: Suggest an idea for this project
-title: ''
-labels: enhancement
-assignees: ''
-
+name: ✨ Feature Request
+about: Suggest a feature, but note that implementation is not guaranteed.
+title: "[FEATURE] "
+labels: "enhancement"
+assignees: ""
 ---
 
-Please consult the [SourceForge Discussion](https://sourceforge.net/p/gerber2pdf/discussion) page before requesting a feature here.
+🚨 **IMPORTANT NOTICE** 🚨
+This project is for **personal research purposes**, and **no support is provided**.
 
-## Content Suggestions:
+Feature requests are welcome, but **there is no guarantee that they will be implemented**.
+If you need a specific feature, you are encouraged to **fork the repository and implement it yourself**.
 
-- Is your feature request related to a problem? Please describe:
-  eg. "I'm always frustrated when [...]"
-- Describe the solution you'd like
-- If you have considered alternative solutions, please list them
+For more details, see the [Support Policy](https://github.com/Kazzz-S/Gerber2PDF/blob/large_page/.github/SUPPORT.md).

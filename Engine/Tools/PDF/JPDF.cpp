@@ -112,6 +112,7 @@ void JPDF::WritePDF(const char* FileName){
   if(!Creator     .Empty()) d->AddEntry("Creator"     , &Creator);
   if(!Producer    .Empty()) d->AddEntry("Producer"    , &Producer);
   if(!CreationDate.Empty()) d->AddEntry("CreationDate", &CreationDate);
+  if(!ModDate     .Empty()) d->AddEntry("ModDate"     , &ModDate); // Kazzz-S added
 
   if(Last){
     Size.Value = Last->Object->Reference+1;

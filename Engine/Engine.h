@@ -27,6 +27,7 @@
 #endif
 //------------------------------------------------------------------------------
 
+#include <stdexcept>
 #include <map>
 #include <string>
 //------------------------------------------------------------------------------
@@ -42,7 +43,17 @@ struct ENGINE{
       PS_Extents,
       PS_A3,
       PS_A4,
-      PS_Letter
+      PS_Letter,
+      // Kazzz-S added the following nine.
+      PS_A2,
+      PS_A1,
+      PS_A0,
+      PS_AZ,
+      PS_AY,
+      PS_AX,
+      PS_AW,
+      PS_X100,
+      PS_X200 // the largest 200"x200"
     } PageSize, NextPageSize;
 
     enum PAGE_ORIENTATION{
@@ -71,6 +82,16 @@ struct ENGINE{
     bool ScaleToFit;
     bool NextScaleToFit;
     bool UseCMYK;
+
+    // Kazzz-S also added the following eight.
+    std::string Title;
+    std::string Author;
+    std::string Subject;
+    std::string Keywords;
+    std::string Creator;
+    std::string Producer;
+    std::string CreationDate;
+    std::string ModDate;
 //------------------------------------------------------------------------------
 
   private: // Internal structures
@@ -222,6 +243,12 @@ struct ENGINE{
     // Call Run for each Gerber file in the list, then call Finish once
     int  Run   (const char* FileName, const char* Title);
     void Finish(const char* OutputFileName);
+
+    // Kazzz-S added the following functions
+    //   (1) tokenizer for the creation date string "YYYY MM DD hh mm ss"
+    void Tokenize(std::string str, std::string del, std::vector<std::string> &token_v);
+    //   (2) version info
+    std::string GetVersionInfo(void);
 };
 //------------------------------------------------------------------------------
 

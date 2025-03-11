@@ -185,6 +185,16 @@ ENGINE::ENGINE(){
 
   Opaque->Opacity(1.0);
   pdf.AddIndirect(Opaque);
+
+  // Kazzz-S added the following eight.
+  Title        = "";
+  Author       = "";
+  Subject      = "";
+  Keywords     = "";
+  Creator      = "";
+  Producer     = "";
+  CreationDate = "";
+  ModDate      = "";
 }
 //------------------------------------------------------------------------------
 
@@ -722,6 +732,127 @@ void ENGINE::SetMediaBox(
       }
       break;
 
+    // Kazzz-S added the following nine.
+    //         changed AW ~ AZ square
+    case PS_A2:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 594/25.4*72.0;
+        PaperHeight = 420/25.4*72.0;
+      }else{
+        PaperWidth  = 420/25.4*72.0;
+        PaperHeight = 594/25.4*72.0;
+      }
+      break;
+
+    case PS_A1:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 841/25.4*72.0;
+        PaperHeight = 594/25.4*72.0;
+      }else{
+        PaperWidth  = 594/25.4*72.0;
+        PaperHeight = 841/25.4*72.0;
+      }
+      break;
+
+    case PS_A0:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 1189/25.4*72.0;
+        PaperHeight =  841/25.4*72.0;
+      }else{
+        PaperWidth  =  841/25.4*72.0;
+        PaperHeight = 1189/25.4*72.0;
+      }
+      break;
+
+    case PS_AZ:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 1682/25.4*72.0;
+      //   PaperHeight = 1189/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 1189/25.4*72.0;
+      //   PaperHeight = 1682/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 1189/25.4*72.0;
+        PaperHeight = 1189/25.4*72.0;
+      }else{
+        PaperWidth  = 1189/25.4*72.0;
+        PaperHeight = 1189/25.4*72.0;
+      }
+      break;
+
+    case PS_AY:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 2378/25.4*72.0;
+      //   PaperHeight = 1682/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 1682/25.4*72.0;
+      //   PaperHeight = 2378/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 1682/25.4*72.0;
+        PaperHeight = 1682/25.4*72.0;
+      }else{
+        PaperWidth  = 1682/25.4*72.0;
+        PaperHeight = 1682/25.4*72.0;
+      }
+      break;
+
+    case PS_AX:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 3364/25.4*72.0;
+      //   PaperHeight = 2378/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 2378/25.4*72.0;
+      //   PaperHeight = 3364/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 2378/25.4*72.0;
+        PaperHeight = 2378/25.4*72.0;
+      }else{
+        PaperWidth  = 2378/25.4*72.0;
+        PaperHeight = 2378/25.4*72.0;
+      }
+      break;
+
+    case PS_AW:
+      // if(Orientation == PO_Landscape){
+      //   PaperWidth  = 4756/25.4*72.0;
+      //   PaperHeight = 3364/25.4*72.0;
+      // }else{
+      //   PaperWidth  = 3364/25.4*72.0;
+      //   PaperHeight = 4756/25.4*72.0;
+      // }
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 3364/25.4*72.0;
+        PaperHeight = 3364/25.4*72.0;
+      }else{
+        PaperWidth  = 3364/25.4*72.0;
+        PaperHeight = 3364/25.4*72.0;
+      }
+      break;
+
+    case PS_X100:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 100.0*72.0;
+        PaperHeight = 100.0*72.0;
+      }else{
+        PaperWidth  = 100.0*72.0;
+        PaperHeight = 100.0*72.0;
+      }
+      break;
+
+    // the largest 200" x 200" square
+    case PS_X200:
+      if(Orientation == PO_Landscape){
+        PaperWidth  = 200.0*72.0;
+        PaperHeight = 200.0*72.0;
+      }else{
+        PaperWidth  = 200.0*72.0;
+        PaperHeight = 200.0*72.0;
+      }
+      break;
+
     default:
       PaperWidth  = Width;
       PaperHeight = Height;
@@ -1061,7 +1192,57 @@ void ENGINE::Finish(const char* OutputFileName){
     pdf.Catalogue.SetPages   (&Pages);
     pdf.Catalogue.SetOutlines(&Outlines);
 
-    pdf.Author.Set("gerber2pdf");
+    // Kazzz-S modified this section
+    //   to set more "Properties.Description" members
+    //
+    // (1) File
+    //       automatic
+    // (2) Title
+    if (Title != ""){
+      pdf.Title.Set(Title.c_str());
+    }
+    // (3) Author
+    if (Author != ""){
+      pdf.Author.Set(Author.c_str());
+    }else{
+      pdf.Author.Set("gerber2pdf"); // original
+    }
+    // (4) Subject
+    if (Subject != ""){
+      pdf.Subject.Set(Subject.c_str());
+    }
+    // (5) Keywords
+    if (Keywords != ""){
+      pdf.Keywords.Set(Keywords.c_str());
+    }
+    // (6) Created == Modified
+    if (CreationDate != ""){ // should be in the format of "YYYY MM DD hh mm ss"
+      std::vector<std::string> timestamp;
+      Tokenize( CreationDate, " ", timestamp );
+      if (timestamp.size() != 6){
+        std::string msg = "! Timestamp <" + CreationDate + "> is in an invalid format!";
+        throw std::runtime_error(msg);
+      }else{
+        int YYYY = stoi(timestamp[0]);
+        int MM   = stoi(timestamp[1]);
+        int DD   = stoi(timestamp[2]);
+        int hh   = stoi(timestamp[3]);
+        int mm   = stoi(timestamp[4]);
+        int ss   = stoi(timestamp[5]);
+
+        pdf.CreationDate.Set(YYYY, MM, DD, hh, mm, ss);
+        pdf.ModDate     .Set(YYYY, MM, DD, hh, mm, ss);
+      }
+    }
+    // (7) Application
+    if (Creator != ""){
+      pdf.Creator.Set(Creator.c_str());
+    }
+    // (8) Producer
+    if (Producer != ""){
+      pdf.Producer.Set(Producer.c_str());
+    }
+    // ^^^ Kazzz-S modified this section ^^^
 
     printf("\nInfo: Writing %s\n", OutputFileName);
     pdf.WritePDF(OutputFileName);
@@ -1070,4 +1251,30 @@ void ENGINE::Finish(const char* OutputFileName){
     printf("Info: No pages to write\n");
   }
 }
+//------------------------------------------------------------------------------
+
+// Ref. https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
+void ENGINE::Tokenize(std::string str, std::string del, std::vector<std::string> &token_v){
+  size_t start = str.find_first_not_of(del), end = start;
+
+  while (start != std::string::npos) {
+    // Find next occurence of delimiter
+    end = str.find(del, start);
+    // Push back the token found into vector
+    token_v.push_back(str.substr(start, end-start));
+    // Skip all occurences of the delimiter to find new start
+    start = str.find_first_not_of(del, end);
+  }
+}
+//------------------------------------------------------------------------------
+
+std::string ENGINE::GetVersionInfo(void)
+{
+  char s[0x100];
+  sprintf(s, "Gerber2PDF, Version %d.%d (enhanced to work with the 'gerber2HiResPDF.py' wrapper)", \
+              MAJOR_VERSION, MINOR_VERSION); // These are defined in the Makefile
+
+  return std::string(s);
+}
+
 //------------------------------------------------------------------------------

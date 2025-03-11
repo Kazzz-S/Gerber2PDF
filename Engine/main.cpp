@@ -95,13 +95,14 @@ static bool StringStart(const char* String, const char* Start){
   int Result;
 
   string OutputFileName;
+  string OutputExtension;
   string FileName;
 
   int arg;
 
   if(argc < 2){
     printf(
-      "Gerber2PDF, Version %d.%d\n"
+      "Gerber2PDF, Version %d.%d.%d\n"
       "Built on " __DATE__ " at " __TIME__ "\n"
       "\n"
       "Copyright (C) John-Philip Taylor\n"
@@ -122,10 +123,20 @@ static bool StringStart(const char* String, const char* Start){
       "\n"
       "Usage: Gerber2pdf [-silentexit] [-nowarnings] [-CMYK] ...\n"
       "       [-output=output_file_name] ...\n"
+      "         [-prop_title=title(\"\")] ...\n"
+      "         [-prop_author=author(gerber2pdf)] ...\n"
+      "         [-prop_subject=subject(\"\")] ...\n"
+      "         [-prop_keywords=keywords(\"\")] ...\n"
+      "         [-prop_creator=creator(\"\")] ...\n"
+      "         [-prop_producer=producer(\"\")] ...\n"
+      "         [-prop_creationdate=creationdate(\"\")] ...\n"
       "       [-background=R,G,B[,A]] [-backgroundCMYK=C,M,Y,K[,A]] ...\n"
-      "       [-strokes2fills] [-page_size=extents|A3|A4|letter] ...\n"
+      "       [-strokes2fills] ...\n"
+      "         [-page_size=extents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
+      "           ('X200' is the largest 200\"x200\" square) ...\n"
       "       [-orientation=portrait|landscape] [-scale_to_fit] ...\n"
-      "       [-next_page_size=extents|A3|A4|letter] ...\n"
+      "         [-next_page_size=eextents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
+      "           ('X200' is the largest 200\"x200\" square) ...\n"
       "       [-next_orientation=portrait|landscape] [-next_scale_to_fit] ...\n"
       "       file_1 [-combine] file_2 file_3 file_4...\n"
       "       [-colour=R,G,B[,A]] [-colourCMYK=C,M,Y,K[,A]] [-mirror] ...\n"
@@ -166,18 +177,22 @@ static bool StringStart(const char* String, const char* Start){
       "file, thereby converting outlines to areas.  It resets to default\n"
       "after that file.\n"
       "\n"
-      "The -page_size option takes global effect and can have one of 4 values:\n"
-      "  \"extents\", \"A3\", \"A4\" or \"letter\"\n"
+      "The -page_size option takes global effect and can have one of 13 values:\n"
+      "  \"extents\", \"A3\", \"A4\", \"letter\", \"A2\", \"A1\", \"A0\", \"AZ\", \"AY\", \"AX\",\n"
+      "  \"AW\", \"X100\", or \"X200\"\n"
+      "  Notes: Kazzz-S added the last nine; \"X200\" is the largest 200\"x200\" square.\n"
+      "         He also added the seven -prop_* options.\n"
       "\n"
       "The -orientation and -scale_to_fit options only take effect\n"
-      "on standard paper sizes (i.e. A3, A4 and letter).\n"
+      "on standard/extended paper sizes (i.e. A3, A4, letter, A2, A1, A0,\n"
+      "AZ, AY, AX, AW, X100, and X200).\n"
       "\n"
       "The -next_page_size, -next_orientation and -next_scale_to_fit options\n"
       "only take effect for the next page created.  Define before calling the\n"
       "first Gerber of that page.  These override the \"global\" options.\n",
-      MAJOR_VERSION, MINOR_VERSION // These are defined in the Makefile
+      MAJOR_VERSION, MINOR_VERSION, TEENY_VERSION // These are defined in the Makefile
     );
-    Pause();
+    //Pause();
     return 0;
   }
 
@@ -343,7 +358,17 @@ static bool StringStart(const char* String, const char* Start){
         else if(!strcmp(argv[arg]+11, "A3"     )) Engine.PageSize = ENGINE::PS_A3;
         else if(!strcmp(argv[arg]+11, "A4"     )) Engine.PageSize = ENGINE::PS_A4;
         else if(!strcmp(argv[arg]+11, "letter" )) Engine.PageSize = ENGINE::PS_Letter;
-        else printf("Error: Only \"extents\", \"A3\", \"A4\" and \"letter\"\n"
+        else if(!strcmp(argv[arg]+11, "A2"     )) Engine.PageSize = ENGINE::PS_A2;   // add (1) standard size
+        else if(!strcmp(argv[arg]+11, "A1"     )) Engine.PageSize = ENGINE::PS_A1;   // add (2) standard size
+        else if(!strcmp(argv[arg]+11, "A0"     )) Engine.PageSize = ENGINE::PS_A0;   // add (3) standard size
+        else if(!strcmp(argv[arg]+11, "AZ"     )) Engine.PageSize = ENGINE::PS_AZ;   // add (4) special  size
+        else if(!strcmp(argv[arg]+11, "AY"     )) Engine.PageSize = ENGINE::PS_AY;   // add (5) special  size
+        else if(!strcmp(argv[arg]+11, "AX"     )) Engine.PageSize = ENGINE::PS_AX;   // add (6) special  size
+        else if(!strcmp(argv[arg]+11, "AW"     )) Engine.PageSize = ENGINE::PS_AW;   // add (7) special  size
+        else if(!strcmp(argv[arg]+11, "X100"   )) Engine.PageSize = ENGINE::PS_X100; // add (8) special  size
+        else if(!strcmp(argv[arg]+11, "X200"   )) Engine.PageSize = ENGINE::PS_X200; // add (9) special  size
+        else printf("Error: Only \"extents\", \"A3\", \"A4\", \"letter\"\n"
+                    "       \"A2\", \"A1\", \"A0\" , \"AZ\" , \"AY\" , \"AX\" , \"AW\" , \"X100\", and \"X200\"\n"
                     "       page sizes are supported\n");
 
       }else if(StringStart(argv[arg]+1, "orientation=")){
@@ -360,7 +385,17 @@ static bool StringStart(const char* String, const char* Start){
         else if(!strcmp(argv[arg]+16, "A3"     )) Engine.NextPageSize = ENGINE::PS_A3;
         else if(!strcmp(argv[arg]+16, "A4"     )) Engine.NextPageSize = ENGINE::PS_A4;
         else if(!strcmp(argv[arg]+16, "letter" )) Engine.NextPageSize = ENGINE::PS_Letter;
-        else printf("Error: Only \"extents\", \"A3\", \"A4\" and \"letter\"\n"
+        else if(!strcmp(argv[arg]+16, "A2"     )) Engine.NextPageSize = ENGINE::PS_A2;   // add (1) standard size
+        else if(!strcmp(argv[arg]+16, "A1"     )) Engine.NextPageSize = ENGINE::PS_A1;   // add (2) standard size
+        else if(!strcmp(argv[arg]+16, "A0"     )) Engine.NextPageSize = ENGINE::PS_A0;   // add (3) standard size
+        else if(!strcmp(argv[arg]+16, "AZ"     )) Engine.NextPageSize = ENGINE::PS_AZ;   // add (4) special  size
+        else if(!strcmp(argv[arg]+16, "AY"     )) Engine.NextPageSize = ENGINE::PS_AY;   // add (5) special  size
+        else if(!strcmp(argv[arg]+16, "AX"     )) Engine.NextPageSize = ENGINE::PS_AX;   // add (6) special  size
+        else if(!strcmp(argv[arg]+16, "AW"     )) Engine.NextPageSize = ENGINE::PS_AW;   // add (7) special  size
+        else if(!strcmp(argv[arg]+16, "X100"   )) Engine.NextPageSize = ENGINE::PS_X100; // add (8) special  size
+        else if(!strcmp(argv[arg]+16, "X200"   )) Engine.NextPageSize = ENGINE::PS_X200; // add (9) special  size
+        else printf("Error: Only \"extents\", \"A3\", \"A4\", \"letter\"\n"
+                    "       \"A2\", \"A1\", \"A0\" , \"AZ\" , \"AY\" , \"AX\" , \"AW\" , \"X100\", and \"X200\"\n"
                     "       page sizes are supported\n");
 
       }else if(StringStart(argv[arg]+1, "next_orientation=")){
@@ -371,6 +406,36 @@ static bool StringStart(const char* String, const char* Start){
 
       }else if(!strcmp(argv[arg]+1, "next_scale_to_fit")){
         Engine.NextScaleToFit = true;
+      }
+      // Kazzz-S add the seven options below
+      //   [-prop_title=title(\"\")] ...
+      //   [-prop_author=author(gerber2pdf)] ...
+      //   [-prop_subject=subject(\"\")] ...
+      //   [-prop_keywords=keywords(\"\")] ...
+      //   [-prop_creator=creator(\"\")] ...
+      //   [-prop_producer=producer(\"\")] ...
+      //   [-prop_creationdate=creationdate(\"\")] ...
+      else if(StringStart(argv[arg]+1, "prop_title=")){
+        Engine.Title = argv[arg]+12;
+      }else if(StringStart(argv[arg]+1, "prop_author=")){
+        Engine.Author = argv[arg]+13;
+      }else if(StringStart(argv[arg]+1, "prop_subject=")){
+        Engine.Subject = argv[arg]+14;
+      }else if(StringStart(argv[arg]+1, "prop_keywords=")){
+        Engine.Keywords = argv[arg]+15;
+      }else if(StringStart(argv[arg]+1, "prop_creator=")){ // Creator='Gerber2PDF'
+        if(strcmp(argv[arg]+14, "" ) == 0) {
+          Engine.Creator = Engine.GetVersionInfo();
+        }else{
+          Engine.Creator = argv[arg]+14;
+        }
+      }else if(StringStart(argv[arg]+1, "prop_producer=")){ // Producer='gerber2HiResPDF.py'
+          Engine.Producer = argv[arg]+15;
+      }else if(StringStart(argv[arg]+1, "prop_creationdate=")){
+        Engine.CreationDate = argv[arg]+19;
+      }else if(StringStart(argv[arg]+1, "version")){
+        printf( "Gerber2pdf special version for Digidat: %d.%d.%d\n", MAJOR_VERSION, MINOR_VERSION, TEENY_VERSION );
+        exit(0);
       }
       continue; // handle the next argument
     }
@@ -396,7 +461,7 @@ static bool StringStart(const char* String, const char* Start){
       Pause();
       return Result;
     }
-  }
+  } // for-arg
 
   if(!OutputFileName.length()){
     OutputFileName.assign(FileName.c_str());
@@ -411,12 +476,22 @@ static bool StringStart(const char* String, const char* Start){
       }
     #endif
   }
-  OutputFileName.append(".pdf");
 
-  Engine.Finish(OutputFileName.c_str());
+  if(OutputFileName != ""){
+    OutputExtension = OutputFileName.substr( OutputFileName.length()-4, OutputFileName.length() );
+    if(OutputExtension != ".pdf"){
+      OutputFileName.append(".pdf");
+    }
 
-  Pause();
-  return 0;
+    Engine.Finish(OutputFileName.c_str());
+
+    Pause();
+    return 0;
+  }else{
+    fprintf(stderr, "! OutputFileName not set!\n");
+    Pause();
+    return 0;
+  }
 }
 //------------------------------------------------------------------------------
 

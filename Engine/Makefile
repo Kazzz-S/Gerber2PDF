@@ -57,10 +57,10 @@ $(Output): $(LibZip) $(LibEngine) $(Resources) main.cpp main.h
 	mkdir -p bin
 ifeq ($(OS), Windows_NT)
 	$(CXX) main.cpp $(Options) $(Version) $(Includes) -s $(Resources) \
-	-L$(obj) -lEngine -LZLib -lz -o $@
+	-L$(obj) -lEngine ZLib/libz.a -o $@
 else
 	$(CXX) main.cpp $(Options) $(Version) $(Includes) \
-	-L$(obj) -lEngine -LZLib -lz -o $@
+	-L$(obj) -lEngine ZLib/libz.a -o $@
 endif
 
 #-------------------------------------------------------------------------------

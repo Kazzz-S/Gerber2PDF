@@ -29,7 +29,7 @@ install: all
 	fi
 
 windeploy: install
-	@export dlldir="/mingw64/bin"; \
+	@export dlldir="/ucrt64/bin"; \
 	if [ -d $$dlldir ]; then \
 		echo ""; \
 		echo "### Deploying Windows DLLs ###"; \

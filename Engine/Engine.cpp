@@ -414,7 +414,7 @@ int ENGINE::RenderLayer(
                 break;
 
             case gcLine:
-                if(OutlinePath || SolidCircle){
+                if(OutlinePath || SolidCircle || SolidObround){
                     Contents->Line(Render->X, Render->Y);
 
                 }else if(SolidRectangle){
@@ -427,22 +427,6 @@ int ENGINE::RenderLayer(
                     RectX = Render->X;
                     RectY = Render->Y;
 
-                }else if(SolidObround){
-                    if(fabs(RectW - RectH) / LineWidth > 0.05){
-                        printf(
-                            "Error: Cannot convert obround (D%d) into circle "
-                            "for rendering a path because the aspect ratio "
-                            "is too far from unity\n", Code
-                        );
-                        Contents->Pop();
-                        return 2;
-                    }
-                    if(GerberWarnings) printf(
-                        "Warning: Path from obround aperture (D%d) "
-                        "modified to use fixed width\n", Code
-                    );
-                    Contents->Line(Render->X, Render->Y);
-
                 }else{
                     printf(
                         "Error: Only solid circular or rectangular "
@@ -454,23 +438,7 @@ int ENGINE::RenderLayer(
                 break;
 
             case gcArc:
-                if(OutlinePath || SolidCircle){
-                    Contents->ArcTo(Render->X, Render->Y, Render->A, Render->End.X, Render->End.Y);
-
-                }else if(SolidObround){
-                    if(fabs(RectW - RectH) / LineWidth > 0.05){
-                        printf(
-                            "Error: Cannot convert obround (D%d) into circle "
-                            "for rendering an arc because the aspect ratio "
-                            "is too far from unity\n", Code
-                        );
-                        Contents->Pop();
-                        return 3;
-                    }
-                    if(GerberWarnings) printf(
-                        "Warning: Path from obround aperture (D%d) "
-                        "modified to use fixed width\n", Code
-                    );
+                if(OutlinePath || SolidCircle || SolidObround){
                     Contents->ArcTo(Render->X, Render->Y, Render->A, Render->End.X, Render->End.Y);
 
                 }else{

@@ -95,6 +95,7 @@ class GerberAperture{
         void UseMacro(GerberMacro* Macro, double* Modifiers, int ModifierCount);
 
         // Used to determine if it is a basic shape or not
+        bool SolidObround();
         bool SolidCircle();
         bool SolidRectangle();
 

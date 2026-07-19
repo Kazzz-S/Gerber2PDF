@@ -53,6 +53,13 @@ Git sort it out for you.
 
 ## Changes:
 
+#### 2026-07-19
+
+- Version-bump to 1.14
+- Made robust against CAD tools that use obround apertures for traces
+- Added the aperture code to the error messages dealing with invalid apertures
+  used for paths
+
 #### 2025-09-28
 
 - Version-bump to 1.13

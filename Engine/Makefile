@@ -27,7 +27,7 @@ Libraries  =
 LibInclude =
 #-------------------------------------------------------------------------------
 
-Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=13
+Version = -DMAJOR_VERSION=1 -DMINOR_VERSION=14
 
 Objects  = $(shell find Tools       -iname "*.cpp")
 Objects += $(shell find Toolbox/Cpp -iname "*.cpp")

@@ -156,14 +156,16 @@ struct ENGINE{
         pdfOpaque* Opaque;
 
         bool   Negative       = false;
+        bool   SolidObround   = false;
         bool   SolidCircle    = false;
         bool   SolidRectangle = false;
         bool   OutlinePath    = false;
         double LineWidth      = 0.0;
-        double RectW          = 0.0;
-        double RectH          = 0.0;
+        double RectW          = 0.0; // Also obround width
+        double RectH          = 0.0; // Also obround height
         double RectX          = 0.0;
         double RectY          = 0.0;
+        int    Code           = 0;
 
         int     PageCount     = 0;
         bool    ThePageUsed   = false;

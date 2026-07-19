@@ -386,10 +386,27 @@ int ENGINE::RenderLayer(
                     RectX = Render->X;
                     RectY = Render->Y;
 
+                }else if(SolidObround){
+                    if(fabs(RectW - RectH) / LineWidth > 0.05){
+                        printf(
+                            "Error: Cannot convert obround (D%d) into circle "
+                            "for rendering a path because the aspect ratio "
+                            "is too far from unity\n", Code
+                        );
+                        Contents->Pop();
+                        return 1;
+                    }
+                    if(GerberWarnings) printf(
+                        "Warning: Path from obround aperture (D%d) "
+                        "modified to use fixed width\n", Code
+                    );
+                    Contents->LineWidth(LineWidth);
+                    Contents->BeginLine(Render->X, Render->Y);
+
                 }else{
                     printf(
                         "Error: Only solid circular or rectangular "
-                        "apertures can be used for paths\n"
+                        "apertures can be used for paths (D%d)\n", Code
                     );
                     Contents->Pop();
                     return 1;
@@ -410,10 +427,26 @@ int ENGINE::RenderLayer(
                     RectX = Render->X;
                     RectY = Render->Y;
 
+                }else if(SolidObround){
+                    if(fabs(RectW - RectH) / LineWidth > 0.05){
+                        printf(
+                            "Error: Cannot convert obround (D%d) into circle "
+                            "for rendering a path because the aspect ratio "
+                            "is too far from unity\n", Code
+                        );
+                        Contents->Pop();
+                        return 2;
+                    }
+                    if(GerberWarnings) printf(
+                        "Warning: Path from obround aperture (D%d) "
+                        "modified to use fixed width\n", Code
+                    );
+                    Contents->Line(Render->X, Render->Y);
+
                 }else{
                     printf(
                         "Error: Only solid circular or rectangular "
-                        "apertures can be used for paths\n"
+                        "apertures can be used for paths (D%d)\n", Code
                     );
                     Contents->Pop();
                     return 2;
@@ -423,9 +456,27 @@ int ENGINE::RenderLayer(
             case gcArc:
                 if(OutlinePath || SolidCircle){
                     Contents->ArcTo(Render->X, Render->Y, Render->A, Render->End.X, Render->End.Y);
+
+                }else if(SolidObround){
+                    if(fabs(RectW - RectH) / LineWidth > 0.05){
+                        printf(
+                            "Error: Cannot convert obround (D%d) into circle "
+                            "for rendering an arc because the aspect ratio "
+                            "is too far from unity\n", Code
+                        );
+                        Contents->Pop();
+                        return 3;
+                    }
+                    if(GerberWarnings) printf(
+                        "Warning: Path from obround aperture (D%d) "
+                        "modified to use fixed width\n", Code
+                    );
+                    Contents->ArcTo(Render->X, Render->Y, Render->A, Render->End.X, Render->End.Y);
+
                 }else{
                     printf(
-                        "Error: Only solid circular apertures can be used for arcs\n"
+                        "Error: Only solid circular apertures "
+                        "can be used for arcs (D%d)\n", Code
                     );
                     Contents->Pop();
                     return 3;
@@ -468,12 +519,17 @@ int ENGINE::RenderLayer(
             case gcApertureSelect:
                 Aperture = Render->Aperture;
                 if(Aperture){
+                    Code           = Aperture->Code;
+
                     SolidCircle    = Aperture->SolidCircle();
                     LineWidth      = Aperture->Right - Aperture->Left;
 
                     SolidRectangle = Aperture->SolidRectangle();
                     RectW          = Aperture->Right - Aperture->Left;
                     RectH          = Aperture->Top   - Aperture->Bottom;
+
+                    SolidObround   = Aperture->SolidObround();
+                    LineWidth      = fmax(RectW, RectH);
 
                     pdfFormArray::iterator ApertureForm = Apertures.find(Aperture->Code);
                     if(ApertureForm != Apertures.end()){

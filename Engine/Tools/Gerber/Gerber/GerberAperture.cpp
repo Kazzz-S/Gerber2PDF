@@ -210,6 +210,11 @@ void GerberAperture::UseMacro(
 }
 //------------------------------------------------------------------------------
 
+bool GerberAperture::SolidObround(){
+    return(Type == tObround && HoleX < 0.0 && HoleY < 0.0);
+}
+//------------------------------------------------------------------------------
+
 bool GerberAperture::SolidCircle(){
     return(Type == tCircle && HoleX < 0.0 && HoleY < 0.0);
 }

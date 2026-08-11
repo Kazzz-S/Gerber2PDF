@@ -132,7 +132,7 @@ static bool StringStart(const char* String, const char* Start){
             "         [-prop_producer=producer(\"\")] ...\n"
             "         [-prop_creationdate=creationdate(\"\")] ...\n"
             "       [-background=R,G,B[,A]] [-backgroundCMYK=C,M,Y,K[,A]] ...\n"
-            "       [-strokes2fills] ...\n"
+            "       [-strokes2fills] [-name_is_filename]...\n"
             "         [-page_size=extents|A3|A4|letter|A2|A1|A0|AZ|AY|AX|AW|X100|X200] ...\n"
             "           ('X200' is the largest 200\"x200\" square) ...\n"
             "       [-orientation=portrait|landscape] [-scale_to_fit] ...\n"
@@ -353,6 +353,9 @@ static bool StringStart(const char* String, const char* Start){
 
             }else if(!strcmp(argv[arg]+1, "strokes2fills")){
                 Engine.ConvertStrokesToFills = true;
+
+            }else if(!strcmp(argv[arg]+1, "name_is_filename")){
+                Engine.NameIsFilename = true;
 
             }else if(StringStart(argv[arg]+1, "page_size=")){
                 if     (!strcmp(argv[arg]+11, "extents")) Engine.PageSize = ENGINE::PS_Extents;

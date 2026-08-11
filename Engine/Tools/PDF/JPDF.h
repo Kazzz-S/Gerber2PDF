@@ -64,14 +64,14 @@ class JPDF{
         JPDF();
         ~JPDF();
 
-    pdfString Title;
-    pdfString Author;
-    pdfString Subject;
-    pdfString Keywords;
-    pdfString Creator;
-    pdfString Producer;
-    pdfString CreationDate;
-    pdfString ModDate; // Kazzz-S added
+        pdfString Title;
+        pdfString Author;
+        pdfString Subject;
+        pdfString Keywords;
+        pdfString Creator;
+        pdfString Producer;
+        pdfString CreationDate;
+        pdfString ModDate; // Kazzz-S added
 
         pdfCatalogue Catalogue;
 

@@ -396,10 +396,27 @@ int ENGINE::RenderLayer(
                     RectX = Render->X;
                     RectY = Render->Y;
 
+                }else if(SolidObround){
+                    if(fabs(RectW - RectH) / LineWidth > 0.05){
+                        printf(
+                            "Error: Cannot convert obround (D%d) into circle "
+                            "for rendering a path because the aspect ratio "
+                            "is too far from unity\n", Code
+                        );
+                        Contents->Pop();
+                        return 1;
+                    }
+                    if(GerberWarnings) printf(
+                        "Warning: Path from obround aperture (D%d) "
+                        "modified to use fixed width\n", Code
+                    );
+                    Contents->LineWidth(LineWidth);
+                    Contents->BeginLine(Render->X, Render->Y);
+
                 }else{
                     printf(
                         "Error: Only solid circular or rectangular "
-                        "apertures can be used for paths\n"
+                        "apertures can be used for paths (D%d)\n", Code
                     );
                     Contents->Pop();
                     return 1;
@@ -407,7 +424,7 @@ int ENGINE::RenderLayer(
                 break;
 
             case gcLine:
-                if(OutlinePath || SolidCircle){
+                if(OutlinePath || SolidCircle || SolidObround){
                     Contents->Line(Render->X, Render->Y);
 
                 }else if(SolidRectangle){
@@ -423,7 +440,7 @@ int ENGINE::RenderLayer(
                 }else{
                     printf(
                         "Error: Only solid circular or rectangular "
-                        "apertures can be used for paths\n"
+                        "apertures can be used for paths (D%d)\n", Code
                     );
                     Contents->Pop();
                     return 2;
@@ -431,11 +448,13 @@ int ENGINE::RenderLayer(
                 break;
 
             case gcArc:
-                if(OutlinePath || SolidCircle){
+                if(OutlinePath || SolidCircle || SolidObround){
                     Contents->ArcTo(Render->X, Render->Y, Render->A, Render->End.X, Render->End.Y);
+
                 }else{
                     printf(
-                        "Error: Only solid circular apertures can be used for arcs\n"
+                        "Error: Only solid circular apertures "
+                        "can be used for arcs (D%d)\n", Code
                     );
                     Contents->Pop();
                     return 3;
@@ -478,12 +497,17 @@ int ENGINE::RenderLayer(
             case gcApertureSelect:
                 Aperture = Render->Aperture;
                 if(Aperture){
+                    Code           = Aperture->Code;
+
                     SolidCircle    = Aperture->SolidCircle();
                     LineWidth      = Aperture->Right - Aperture->Left;
 
                     SolidRectangle = Aperture->SolidRectangle();
                     RectW          = Aperture->Right - Aperture->Left;
                     RectH          = Aperture->Top   - Aperture->Bottom;
+
+                    SolidObround   = Aperture->SolidObround();
+                    LineWidth      = fmax(RectW, RectH);
 
                     pdfFormArray::iterator ApertureForm = Apertures.find(Aperture->Code);
                     if(ApertureForm != Apertures.end()){
@@ -1133,61 +1157,57 @@ void ENGINE::Finish(const char* OutputFileName){
         pdf.Catalogue.SetPages   (&Pages);
         pdf.Catalogue.SetOutlines(&Outlines);
 
+        // Kazzz-S modified this section
+        //   to set more "Properties.Description" members
+    	//
+    	// (1) File
+    	//       automatic
+    	// (2) Title
+    	if (Title != ""){
+      		pdf.Title.Set(Title.c_str());
+    	}
+    	// (3) Author
+    	if (Author != ""){
+      		pdf.Author.Set(Author.c_str());
+    	}else{
+      		pdf.Author.Set("gerber2pdf"); // original
+   		}
+    	// (4) Subject
+    	if (Subject != ""){
+      		pdf.Subject.Set(Subject.c_str());
+    	}
+    	// (5) Keywords
+    	if (Keywords != ""){
+      		pdf.Keywords.Set(Keywords.c_str());
+    	}
+    	// (6) Created == Modified
+    	if (CreationDate != ""){ // should be in the format of "YYYY MM DD hh mm ss"
+      		std::vector<std::string> timestamp;
+      		Tokenize( CreationDate, " ", timestamp );
+      		if (timestamp.size() != 6){
+        		std::string msg = "! Timestamp <" + CreationDate + "> is in an invalid format!";
+        		throw std::runtime_error(msg);
+      		}else{
+        		int YYYY = stoi(timestamp[0]);
+        		int MM   = stoi(timestamp[1]);
+        		int DD   = stoi(timestamp[2]);
+        		int hh   = stoi(timestamp[3]);
+        		int mm   = stoi(timestamp[4]);
+        		int ss   = stoi(timestamp[5]);
 
-    pdf.Catalogue.SetPages   (&Pages);
-    pdf.Catalogue.SetOutlines(&Outlines);
-
-    // Kazzz-S modified this section
-    //   to set more "Properties.Description" members
-    //
-    // (1) File
-    //       automatic
-    // (2) Title
-    if (Title != ""){
-      pdf.Title.Set(Title.c_str());
-    }
-    // (3) Author
-    if (Author != ""){
-      pdf.Author.Set(Author.c_str());
-    }else{
-      pdf.Author.Set("gerber2pdf"); // original
-    }
-    // (4) Subject
-    if (Subject != ""){
-      pdf.Subject.Set(Subject.c_str());
-    }
-    // (5) Keywords
-    if (Keywords != ""){
-      pdf.Keywords.Set(Keywords.c_str());
-    }
-    // (6) Created == Modified
-    if (CreationDate != ""){ // should be in the format of "YYYY MM DD hh mm ss"
-      std::vector<std::string> timestamp;
-      Tokenize( CreationDate, " ", timestamp );
-      if (timestamp.size() != 6){
-        std::string msg = "! Timestamp <" + CreationDate + "> is in an invalid format!";
-        throw std::runtime_error(msg);
-      }else{
-        int YYYY = stoi(timestamp[0]);
-        int MM   = stoi(timestamp[1]);
-        int DD   = stoi(timestamp[2]);
-        int hh   = stoi(timestamp[3]);
-        int mm   = stoi(timestamp[4]);
-        int ss   = stoi(timestamp[5]);
-
-        pdf.CreationDate.Set(YYYY, MM, DD, hh, mm, ss);
-        pdf.ModDate     .Set(YYYY, MM, DD, hh, mm, ss);
-      }
-    }
-    // (7) Application
-    if (Creator != ""){
-      pdf.Creator.Set(Creator.c_str());
-    }
-    // (8) Producer
-    if (Producer != ""){
-      pdf.Producer.Set(Producer.c_str());
-    }
-    // ^^^ Kazzz-S modified this section ^^^
+        		pdf.CreationDate.Set(YYYY, MM, DD, hh, mm, ss);
+        		pdf.ModDate     .Set(YYYY, MM, DD, hh, mm, ss);
+      		}
+    	}
+    	// (7) Application
+    	if (Creator != ""){
+      		pdf.Creator.Set(Creator.c_str());
+    	}
+    	// (8) Producer
+    	if (Producer != ""){
+      		pdf.Producer.Set(Producer.c_str());
+    	}
+    	// ^^^ Kazzz-S modified this section ^^^
 
         printf("\nInfo: Writing %s\n", OutputFileName);
         pdf.WritePDF(OutputFileName);
